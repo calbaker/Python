@@ -60,7 +60,7 @@ class ideal_gas(flow):
         """Sets density as rho (kg/m^3) and number density as n
         (#/m^3)"""  
         self.rho = self.P / (self.R * self.T) # density (kg/m**3)
-        self.n = self.rho
+        self.n = self.rho / self.m # number density (#/m^3)
 
     def set_Temp_dependents(self):
         """Sets viscosity (Pa*s) of general ideal gas and specific
