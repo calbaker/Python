@@ -18,47 +18,36 @@ class ideal_gas(flow):
 
     def __init__(self,**kwargs):
         """ Sets a bunch of constants common to all ideal gases, and
-        some which are specific to air.  
-        if 'Mhat' in kwargs:
-            self.Mhat = kwargs['Mhat']
+        some which are specific to air."""
+
+        # Unless otherwise noted, all gas properties are coming from
+        # Bird, Stewart, Lightfoot Transport Phenomena Table E.1
+        if 'species' in kwargs:
+            self.species = kwargs['species']
         else:
+            self.species = 'air'
+
+        if self.species == 'air':
             self.Mhat = 28.964 # molar mass of air from Bird, Stewart,
                 # Lightfoot Table E.1 (kg/kmol) 
-        if 'd' in kwargs:
-            self.d = kwargs['d']
-        else:
-            self.d = 3.617e-10 # collision diameter of 'air molecule'
-                # from Bird, Stewart, Lightfoot Table
-                # E.1 (m) 
-        if 'Pr' in kwargs:
-            self.Pr = kwargs['Pr']
-        else:
-            self.Pr = 0.74 # Pr of air from Bird, Stewart, Lightfoot
-                # Table 9.3-1 # 
-        # Constant attributes for all gases
-        self.k_B = 1.38e-23 # Boltzmann's constant (J/K)
-        self.Nhat = 6.022e26 # Avogadro's # (molecules/kmol)
-        self.Rhat = self.k_B*1e-3*self.Nhat # Universal gas constant
-            # (kJ/kmol*K) 
-        # Calculated attributes
-        self.R = self.Rhat / self.Mhat # gas constant (kJ/kg*K)
-        self.m = self.Mhat / self.Nhat # molecular mass (kg/molecule)"""
-        if 'Mhat' in kwargs:
-            self.Mhat = kwargs['Mhat']
-        else:
-            self.Mhat = 28.964 # molar mass of air from Bird, Stewart,
-                # Lightfoot Table E.1 (kg/kmol) 
-        if 'd' in kwargs:
-            self.d = kwargs['d']
-        else:
             self.d = 3.617e-10 # collision diameter of "air molecule"
                 # from Bird, Stewart, Lightfoot Table
                 # E.1 (m) 
-        if 'Pr' in kwargs:
-            self.Pr = kwargs['Pr']
-        else:
             self.Pr = 0.74 # Pr of air from Bird, Stewart, Lightfoot
                 # Table 9.3-1 # 
+        
+        if self.species == 'propane' or 'C3H8':
+            self.Mhat = 44.10
+            self.d = 4.934
+            self.Pr = 
+
+        if 'Mhat' in kwargs:
+            self.Mhat = kwargs['Mhat']
+        if 'd' in kwargs:
+            self.d = kwargs['d']
+        if 'Pr' in kwargs:
+            self.Pr = kwargs['Pr']
+            
         # Constant attributes for all gases
         self.k_B = 1.38e-23 # Boltzmann's constant (J/K)
         self.Nhat = 6.022e26 # Avogadro's # (molecules/kmol)
@@ -98,6 +87,11 @@ class ideal_gas(flow):
         self.set_Temp_dependents()
         self.set_rho()
         self.nu = self.mu/self.rho # kinematic viscosity (m^2/s)
-        self.alpha = self.nu/self.Pr # thermal diffusivity (m^2/s)
         self.k_air = (self.alpha * self.rho * self.c_p_air) # thermal
             # conductivity(kW/m-K) of air
+
+    def set_alpha(self):
+        """Sets temp and press dependents and then sets thermal
+        diffusivity if Pr is known."""
+        self.set_TempPres_dependents()
+        self.alpha = self.nu/self.Pr # thermal diffusivity (m^2/s)
