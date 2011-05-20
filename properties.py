@@ -7,8 +7,8 @@ import scipy as sp
 class flow:
     """Class for dealing with things that are common to all flows."""
     def set_Re(self):
-    """Function for calculating the Reynolds number for a hydraulic
-    diameter""" 
+        """Function for calculating the Reynolds number for a hydraulic
+        diameter""" 
         self.Re_D = self.velocity*self.D/self.nu
 
 
