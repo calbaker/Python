@@ -39,7 +39,6 @@ class ideal_gas(flow):
         if self.species == 'propane' or 'C3H8':
             self.Mhat = 44.10
             self.d = 4.934
-            self.Pr = 
 
         if 'Mhat' in kwargs:
             self.Mhat = kwargs['Mhat']
@@ -87,11 +86,13 @@ class ideal_gas(flow):
         self.set_Temp_dependents()
         self.set_rho()
         self.nu = self.mu/self.rho # kinematic viscosity (m^2/s)
-        self.k_air = (self.alpha * self.rho * self.c_p_air) # thermal
-            # conductivity(kW/m-K) of air
 
     def set_alpha(self):
-        """Sets temp and press dependents and then sets thermal
-        diffusivity if Pr is known."""
+        """Sets temp and press dependents, then sets thermal
+        diffusivity (m^2/s) if Pr is known, and then sets thermal 
+        conductivity (kW/m*K).""" 
         self.set_TempPres_dependents()
         self.alpha = self.nu/self.Pr # thermal diffusivity (m^2/s)
+        self.k_air = (self.alpha * self.rho * self.c_p_air) # thermal
+            # conductivity(kW/m-K) of air
+        
