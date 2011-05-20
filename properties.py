@@ -9,11 +9,11 @@ class flow:
     def set_Re(self):
         """Function for calculating the Reynolds number for a hydraulic
         diameter""" 
-        self.Re_D = self.velocity*self.D/self.nu
+        self.Re_D = self.velocity * self.D / self.nu
 
 
 class ideal_gas(flow):
-    """Class for modeling ideal gases.  Inherits properties  of
+    """Class for modeling ideal gases.  Inherits properties of
     flow""" 
 
     def __init__(self,**kwargs):
@@ -50,15 +50,17 @@ class ideal_gas(flow):
         # Constant attributes for all gases
         self.k_B = 1.38e-23 # Boltzmann's constant (J/K)
         self.Nhat = 6.022e26 # Avogadro's # (molecules/kmol)
-        self.Rhat = self.k_B*1e-3*self.Nhat # Universal gas constant
+        self.Rhat = self.k_B * 1.e-3 * self.Nhat # Universal gas constant
             # (kJ/kmol*K) 
         # Calculated attributes
         self.R = self.Rhat / self.Mhat # gas constant (kJ/kg*K)
         self.m = self.Mhat / self.Nhat # molecular mass (kg/molecule)
 
     def set_rho(self):
-        """self.rho = self.P/(self.R*self.T) # density (kg/m**3)""" 
-        self.rho = self.P/(self.R*self.T) # density (kg/m**3)
+        """Sets density as rho (kg/m^3) and number density as n
+        (#/m^3)"""  
+        self.rho = self.P / (self.R * self.T) # density (kg/m**3)
+        self.n = self.rho
 
     def set_Temp_dependents(self):
         """Sets viscosity (Pa*s) of general ideal gas and specific
