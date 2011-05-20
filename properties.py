@@ -36,9 +36,9 @@ class ideal_gas(flow):
             self.Pr = 0.74 # Pr of air from Bird, Stewart, Lightfoot
                 # Table 9.3-1 # 
         
-        if self.species == 'propane' or 'C3H8':
+        elif self.species == 'propane' or 'C3H8':
             self.Mhat = 44.10
-            self.d = 4.934
+            self.d = 4.934e-10
 
         if 'Mhat' in kwargs:
             self.Mhat = kwargs['Mhat']
