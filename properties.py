@@ -4,7 +4,7 @@ gases"""
 import scipy as sp
 
 
-class flow:
+class flow(object):
     """Class for dealing with things that are common to all flows."""
     def set_Re(self):
         """Function for calculating the Reynolds number for a hydraulic
