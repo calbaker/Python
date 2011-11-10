@@ -6,14 +6,12 @@ import matplotlib.pyplot as plt
 x_step = 0.001
 x = np.arange(0, 0.1, x_step) # x-coordinate in slab (m)
 
-T_hot = np.empty(50)
-T_hot[0] = 500.
-T_hot[1:] = 600.
-
-T_cold = 300.
-
 t_step = 0.01
 t = np.arange(0., 500., t_step)
+
+T_cold = 500.
+
+T_hot = 500. + 100. * np.sin(np.linspace(0,2.*np.pi,t.size/10)) 
 
 alpha = 8.e-6
 Fo = alpha * t_step / x_step**2
@@ -27,8 +25,7 @@ else:
 
 T = np.zeros([x.size, t.size])
 
-T[:,0] = np.array(np.linspace(T_hot[0], T_cold, x.size))
-T[:,1] = np.array(np.linspace(T_hot[0], T_cold, x.size))
+T[:,0] = np.linspace(T_hot[0], T_cold, x.size)
 T[-1,:] = T_cold
 
 # creating and populating the coefficient matrix
@@ -41,8 +38,9 @@ for pop in range(coeff_mat.shape[0]-2):
     coeff_mat[pop+1, pop+2] = Fo
 
 # solving
-T[0,1] = 600.
-for i in range(2,t.size):
+for i in range(1,t.size):
+    if i%10 == 0:
+        T[0,i-1] = T_hot[i/10]
     T[:,i] = np.dot(coeff_mat, T[:,i-1])
 
 markers = ['-', '--', '-.', ':']
@@ -51,8 +49,8 @@ plt.close('all')
 
 fig1 = plt.figure()
 for i in range(t.size):
-    if i%100 == 0:
-        plt.plot(x*100., T[:,i])
+    if i%250 == 0:
+        plt.plot(x*100., T[:,i],marker=markers[i%3])
 
 plt.xlabel('X coordinate (cm)')
 plt.ylabel('Temperature (K)')
