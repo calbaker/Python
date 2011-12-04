@@ -1,7 +1,7 @@
 """Classes for characterizing flows and determining properties of ideal
 gases"""
 
-import scipy as sp
+import numpy as np
 
 
 class flow(object):
@@ -66,17 +66,17 @@ class ideal_gas(flow):
         """Sets viscosity (Pa*s) of general ideal gas and specific
         heat (kJ/kg*K) of air.  For other gases, use a different
         specific heat correlation."""  
-        self.mu = (5./16. * sp.sqrt(sp.pi*self.m*self.k_B*self.T) /
-        (sp.pi*self.d**2)) # viscosity (Pa*s) of ideal gas from Bird,
+        self.mu = (5./16. * np.sqrt(np.pi*self.m*self.k_B*self.T) /
+        (np.pi*self.d**2)) # viscosity (Pa*s) of ideal gas from Bird,
             # Stewart, Lightfoot Eq. 1.4-14.  This
             # expression works ok for nonpolar gases,
             # even ones with multiple molecules.  
         # c_p (kJ/kg-K) of air
         # Moran and Shapiro, Table A-21 constants for calculating
         # specific heat of air 
-        coeff = sp.array([0.2763e-12,1.913e-9,3.294e-6,-1.337e-3
+        coeff = np.array([0.2763e-12,1.913e-9,3.294e-6,-1.337e-3
         ,3.653]) 
-        self.c_p_air = sp.polyval(coeff,self.T)*self.R # constant
+        self.c_p_air = np.polyval(coeff,self.T)*self.R # constant
             # pressure specific heat of
             # air (kJ/kg*K) 
 
