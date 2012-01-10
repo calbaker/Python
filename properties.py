@@ -34,7 +34,7 @@ class ideal_gas(flow):
                 # from Bird, Stewart, Lightfoot Table
                 # E.1 (m) 
             self.Pr = 0.74 # Pr of air from Bird, Stewart, Lightfoot
-                # Table 9.3-1 # 
+                # Table 9.3-1             
         
         elif self.species == 'propane' or 'C3H8':
             self.Mhat = 44.10
@@ -74,11 +74,10 @@ class ideal_gas(flow):
         # c_p (kJ/kg-K) of air
         # Moran and Shapiro, Table A-21 constants for calculating
         # specific heat of air 
-        coeff = np.array([0.2763e-12,1.913e-9,3.294e-6,-1.337e-3
-        ,3.653]) 
-        self.c_p_air = np.polyval(coeff,self.T)*self.R # constant
-            # pressure specific heat of
-            # air (kJ/kg*K) 
+        self.get_c_p_air = np.poly1d([0.2763e-12,1.913e-9,3.294e-6,-1.337e-3
+        ,3.653]) * self.R 
+        self.c_p_air = self.get_c_p_air(self.T)
+        # constant pressure specific heat of air (kJ/kg*K)  
 
     def set_TempPres_dependents(self):
         """Sets temp dependent properties and then sets properties
