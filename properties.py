@@ -69,6 +69,14 @@ class ideal_gas(flow):
         entropy = quad(get_integrand, 0.5, T)[0]
         return entropy
 
+    def get_enthalpy(self,T):
+        """Returns enthalpy."""
+        def get_integrand(T):
+            integrand = self.get_c_p_air(T) * T
+            return integrand
+        enthalpy = quad(get_integrand, 0.5, T)[0]
+        return enthalpy
+
     def set_Temp_dependents(self):
         """Sets viscosity (Pa*s) of general ideal gas and specific
         heat (kJ/kg*K) of air.  For other gases, use a different
@@ -86,6 +94,7 @@ class ideal_gas(flow):
         self.c_p_air = self.get_c_p_air(self.T)
         # constant pressure specific heat of air (kJ/kg*K)  
         self.entropy = self.get_entropy(self.T)
+        self.enthalpy = self.get_enthalpy(self.T)
 
     def set_TempPres_dependents(self):
         """Sets temp dependent properties and then sets properties
@@ -95,7 +104,6 @@ class ideal_gas(flow):
         self.set_Temp_dependents()
         self.set_rho()
         self.nu = self.mu/self.rho # kinematic viscosity (m^2/s)
-        print "running set_TempPress..."
 
     def set_alpha(self):
         """Sets temp and press dependents, then sets thermal
