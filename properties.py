@@ -2,7 +2,7 @@
 gases"""
 
 import numpy as np
-
+from scipy.integrate import quad
 
 class flow(object):
     """Class for dealing with things that are common to all flows."""
@@ -10,7 +10,6 @@ class flow(object):
         """Function for calculating the Reynolds number for a hydraulic
         diameter""" 
         self.Re_D = self.velocity * self.D / self.nu
-
 
 class ideal_gas(flow):
     """Class for modeling ideal gases.  Inherits properties of
@@ -62,6 +61,14 @@ class ideal_gas(flow):
         self.rho = self.P / (self.R * self.T) # density (kg/m**3)
         self.n = self.rho / self.m # number density (#/m^3)
 
+    def get_entropy(self,T):
+        """Returns entropy with respect to 0 K at 1 bar."""
+        def get_integrand(T):
+            integrand = self.get_c_p_air(T) / T 
+            return integrand
+        entropy = quad(get_integrand, 0.5, T)[0]
+        return entropy
+
     def set_Temp_dependents(self):
         """Sets viscosity (Pa*s) of general ideal gas and specific
         heat (kJ/kg*K) of air.  For other gases, use a different
@@ -78,6 +85,7 @@ class ideal_gas(flow):
         ,3.653]) * self.R 
         self.c_p_air = self.get_c_p_air(self.T)
         # constant pressure specific heat of air (kJ/kg*K)  
+        self.entropy = self.get_entropy(self.T)
 
     def set_TempPres_dependents(self):
         """Sets temp dependent properties and then sets properties
@@ -87,6 +95,7 @@ class ideal_gas(flow):
         self.set_Temp_dependents()
         self.set_rho()
         self.nu = self.mu/self.rho # kinematic viscosity (m^2/s)
+        print "running set_TempPress..."
 
     def set_alpha(self):
         """Sets temp and press dependents, then sets thermal
