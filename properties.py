@@ -72,9 +72,9 @@ class ideal_gas(flow):
     def get_enthalpy(self,T):
         """Returns enthalpy."""
         def get_integrand(T):
-            integrand = self.get_c_p_air(T) * T
+            integrand = self.get_c_p_air(T)
             return integrand
-        enthalpy = quad(get_integrand, 0.5, T)[0]
+        enthalpy = quad(get_integrand, 0., T)[0]
         return enthalpy
 
     def set_Temp_dependents(self):
