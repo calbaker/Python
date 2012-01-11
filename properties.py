@@ -68,15 +68,10 @@ class ideal_gas(flow):
 
     def get_entropy(self,T):
         """Returns entropy with respect to 0 K at 1 bar."""
-        T = T.value
-        print "T =",T
-        print type(T)
         def get_integrand(T):
-            print "T =",T
-            print type(T)
-            integrand = self.get_c_p_air(T).value / T
-            return integrand
-        entropy = ( quad(get_integrand, 0.5, T)[0] * energy.kJ /
+            integrand = self.get_c_p_air(T) / T
+            return integrand.value
+        entropy = ( quad(get_integrand, 0.5, T.value)[0] * energy.kJ /
         (mass.kg * temperature.K) )   
         return entropy
 
@@ -84,7 +79,7 @@ class ideal_gas(flow):
         """Returns enthalpy."""
         def get_integrand(T):
             integrand = self.get_c_p_air(T)
-            return integrand
+            return integrand.value
         enthalpy = ( quad(get_integrand, 0., T.value)[0] * energy.kJ /
         mass.kg )  
         return enthalpy
@@ -96,6 +91,7 @@ class ideal_gas(flow):
         # Moran and Shapiro, Table A-21 constants for calculating
         # specific heat of air 
         c_p_air = self.polyrep(T) * self.R 
+        return c_p_air
 
     def set_Temp_dependents(self):
         """Sets viscosity (Pa*s) of general ideal gas and specific
