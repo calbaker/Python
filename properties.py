@@ -4,6 +4,7 @@ gases"""
 import numpy as np
 from scipy.integrate import quad
 from scimath.units import * 
+from scimath.units.api import *
 
 class flow(object):
     """Class for dealing with things that are common to all flows."""
@@ -28,18 +29,20 @@ class ideal_gas(flow):
             self.species = 'air'
 
         if self.species == 'air':
-            self.Mhat = 28.964 * mass.kg / substance.kmol 
+            self.Mhat = UnitScalar(28.964, units=mass.kg /
+            substance.kmol) 
             # molar mass of air from Bird, Stewart, Lightfoot Table
             # E.1 (kg/kmol)  
-            self.d = 3.617e-10 * length.m 
+            self.d = UnitScalar(3.617e-10, units=length.m) 
             # collision diameter of "air molecule" from Bird, Stewart,
             # Lightfoot Table E.1 (m)  
             self.Pr = 0.74 
             # Pr of air from Bird, Stewart, Lightfoot Table 9.3-1              
         
         elif self.species == 'propane' or 'C3H8':
-            self.Mhat = 44.10 * mass.kg / substance.kmol
-            self.d = 4.934e-10 * length.m
+            self.Mhat = UnitScalar(44.10, units=mass.kg /
+            substance.kmol) 
+            self.d = UnitScalar(4.934e-10, units=length.m) 
 
         if 'Mhat' in kwargs:
             self.Mhat = kwargs['Mhat']
@@ -49,12 +52,12 @@ class ideal_gas(flow):
             self.Pr = kwargs['Pr']
             
         # Constant attributes for all gases
-        self.k_B = 1.38e-23 * energy.J / temperature.K 
+        self.k_B = UnitScalar(1.38e-23, units=energy.J /
+        temperature.K) 
         # Boltzmann's constant (J/K)
-        self.Nhat = 6.022e26 / substance.kmol
+        self.Nhat = UnitScalar(6.022e26, units=substance.kmol)
         # Avogadro's # (molecules/kmol)
-        self.Rhat = ( self.k_B * 1.e-3 * self.Nhat * energy.kJ /
-        (substance.kmol * temperature.K) ) 
+        self.Rhat = self.k_B * self.Nhat * 1.e-3 
         # Universal gas constant (kJ/kmol*K) 
         # Calculated attributes
         self.R = self.Rhat / self.Mhat # gas constant (kJ/kg*K)
@@ -66,31 +69,33 @@ class ideal_gas(flow):
         self.rho = self.P / (self.R * self.T) # density (kg/m**3)
         self.n = self.rho / self.m # number density (#/m^3)
 
+    @has_units(inputs="T:a scalar:units=K",
+               outputs="entropy:a scalar:units=kJ/kg*K")
     def get_entropy(self,T):
         """Returns entropy with respect to 0 K at 1 bar."""
+        @has_units(inputs="T:a scalar:units=K")
         def get_integrand(T):
             integrand = self.get_c_p_air(T) / T
             return integrand
-        entropy = ( quad(get_integrand, 0.5, T)[0] * energy.kJ /
-        (mass.kg * temperature.K) )   
+        entropy = (quad(get_integrand, 0.5, T)[0])
         return entropy
 
+    @has_units(inputs="T:a scalar:units=K",
+               outputs="enthalpy:a scalar:units=kJ/kg")
     def get_enthalpy(self,T):
         """Returns enthalpy."""
-        def get_integrand(T):
-            integrand = self.get_c_p_air(T)
-            return integrand
-        enthalpy = ( quad(get_integrand, 0., T)[0] * energy.kJ /
-        mass.kg )  
+        enthalpy = (quad(self.get_c_p_air, 0., T)[0])
         return enthalpy
 
+    @has_units(inputs="T:temp:units=K",
+               outputs="c_p_air:specific heat:units=kJ/kg*K") 
     def get_c_p_air(self,T):
+        """c_p (kJ/kg-K) of air calculated using Moran and Shapiro,
+               Table A-21 constants for polynomial for specific heat
+               of air"""  
         self.polyrep = np.poly1d([0.2763e-12, 1.913e-9, 3.294e-6,
         -1.337e-3, 3.653]) 
-        # c_p (kJ/kg-K) of air
-        # Moran and Shapiro, Table A-21 constants for calculating
-        # specific heat of air 
-        c_p_air = self.polyrep(T) * self.R 
+        c_p_air = self.polyrep(T)  * self.R 
         return c_p_air
 
     def set_Temp_dependents(self):
@@ -124,4 +129,3 @@ class ideal_gas(flow):
         self.alpha = self.nu/self.Pr # thermal diffusivity (m^2/s)
         self.k_air = (self.alpha * self.rho * self.c_p_air) # thermal
             # conductivity(kW/m-K) of air
-        
