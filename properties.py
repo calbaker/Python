@@ -70,8 +70,8 @@ class ideal_gas(flow):
         """Returns entropy with respect to 0 K at 1 bar."""
         def get_integrand(T):
             integrand = self.get_c_p_air(T) / T
-            return integrand.value
-        entropy = ( quad(get_integrand, 0.5, T.value)[0] * energy.kJ /
+            return integrand
+        entropy = ( quad(get_integrand, 0.5, T)[0] * energy.kJ /
         (mass.kg * temperature.K) )   
         return entropy
 
@@ -79,8 +79,8 @@ class ideal_gas(flow):
         """Returns enthalpy."""
         def get_integrand(T):
             integrand = self.get_c_p_air(T)
-            return integrand.value
-        enthalpy = ( quad(get_integrand, 0., T.value)[0] * energy.kJ /
+            return integrand
+        enthalpy = ( quad(get_integrand, 0., T)[0] * energy.kJ /
         mass.kg )  
         return enthalpy
 
@@ -102,7 +102,7 @@ class ideal_gas(flow):
             # Stewart, Lightfoot Eq. 1.4-14.  This
             # expression works ok for nonpolar gases,
             # even ones with multiple molecules.  
-        self.c_p_air = self.get_c_p_air(self.T.value)
+        self.c_p_air = self.get_c_p_air(self.T)
         # constant pressure specific heat of air (kJ/kg*K)  
         self.entropy = self.get_entropy(self.T)
         self.enthalpy = self.get_enthalpy(self.T)
