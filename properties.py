@@ -95,7 +95,7 @@ class ideal_gas(flow):
                of air"""  
         self.polyrep = np.poly1d([0.2763e-12, 1.913e-9, 3.294e-6,
         -1.337e-3, 3.653]) 
-        c_p_air = self.polyrep(T)  * self.R 
+        c_p_air = self.polyrep(T) * self.R 
         return c_p_air
 
     def set_Temp_dependents(self):
