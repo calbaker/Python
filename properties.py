@@ -55,7 +55,7 @@ class ideal_gas(flow):
         self.k_B = UnitScalar(1.38e-23, units=energy.J /
         temperature.K) 
         # Boltzmann's constant (J/K)
-        self.Nhat = UnitScalar(6.022e26, units=substance.kmol)
+        self.Nhat = UnitScalar(6.022e26, units=substance.kmol**-1)
         # Avogadro's # (molecules/kmol)
         self.Rhat = self.k_B * self.Nhat * 1.e-3 
         # Universal gas constant (kJ/kmol*K) 
@@ -70,7 +70,7 @@ class ideal_gas(flow):
         self.n = self.rho / self.m # number density (#/m^3)
 
     @has_units(inputs="T:a scalar:units=K",
-               outputs="entropy:a scalar:units=kJ/kg*K")
+               outputs="entropy:a scalar:units=kJ/kg/K")
     def get_entropy(self,T):
         """Returns entropy with respect to 0 K at 1 bar."""
         @has_units(inputs="T:a scalar:units=K")
@@ -88,7 +88,7 @@ class ideal_gas(flow):
         return enthalpy
 
     @has_units(inputs="T:temp:units=K",
-               outputs="c_p_air:specific heat:units=kJ/kg*K") 
+               outputs="c_p_air:specific heat:units=kJ/kg/K") 
     def get_c_p_air(self,T):
         """c_p (kJ/kg-K) of air calculated using Moran and Shapiro,
                Table A-21 constants for polynomial for specific heat
