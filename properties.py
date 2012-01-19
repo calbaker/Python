@@ -57,7 +57,7 @@ class ideal_gas(flow):
         # Boltzmann's constant (J/K)
         self.Nhat = UnitScalar(6.022e26, units=substance.kmol**-1)
         # Avogadro's # (molecules/kmol)
-        self.Rhat = self.k_B * self.Nhat * 1.e-3 
+        self.Rhat = self.k_B * self.Nhat 
         # Universal gas constant (kJ/kmol*K) 
         # Calculated attributes
         self.R = self.Rhat / self.Mhat # gas constant (kJ/kg*K)
