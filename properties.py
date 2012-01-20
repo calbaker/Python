@@ -55,13 +55,7 @@ class ideal_gas(flow):
         self.R = self.Rhat / self.Mhat # gas constant (kJ/kg*K)
         self.m = self.Mhat / self.Nhat # molecular mass (kg/molecule)
 
-    def set_rho(self):
-        """Sets density as rho (kg/m^3) and number density as n
-        (#/m^3)"""  
-        self.rho = self.P / (self.R * self.T) # density (kg/m**3)
-        self.n = self.rho / self.m # number density (#/m^3)
-
-    def get_entropy(self,T):
+    def get_entropy(self, T):
         """Returns entropy with respect to 0 K at 1 bar."""
         def get_integrand(T):
             integrand = self.get_c_p_air(T) / T 
@@ -69,7 +63,7 @@ class ideal_gas(flow):
         entropy = quad(get_integrand, 0.5, T)[0]
         return entropy
 
-    def get_enthalpy(self,T):
+    def get_enthalpy(self, T):
         """Returns enthalpy."""
         def get_integrand(T):
             integrand = self.get_c_p_air(T)
@@ -77,20 +71,51 @@ class ideal_gas(flow):
         enthalpy = quad(get_integrand, 0., T)[0]
         return enthalpy
 
+    def get_rho(self, T, P):
+        """Returns density (kg/m^3)
+        arguments: P(kPa), T(K)
+        returns rho(kg/m**3)"""  
+        rho = P / (self.R * T) # density (kg/m**3)
+        return rho
+    
+    def get_n(self, rho):
+        """Returns number density (#/m^3)
+        argument: rho(kg/m**3)
+        returns n(#/m**3)"""  
+        n = rho / self.m # number density (#/m^3)
+
+    def get_mu(self, T):
+        """Returns viscosity (Pa*s) of ideal gas from Bird, Stewart,
+        Lightfoot Eq. 1.4-14.  This expression works ok for nonpolar
+        gases, even ones with multiple molecules.
+
+        arugment: T (K)
+        returns: mu (Pa*s)"""   
+        mu = (5. / 16. * np.sqrt(np.pi * self.m * self.k_B * T) /
+        (np.pi * self.d**2))  
+        return mu
+
+    def get_c_p_air(self, T):
+        """Returns c_p (kJ/kg-K) of air from Moran and Shapiro, Table
+        A-21 constants for calculating specific heat of air.
+        argument: T (K)
+        returns: c_p"""
+        get_c_p_air = ( np.poly1d([0.2763e-12, 1.913e-9, 3.294e-6,
+        -1.337e-3, 3.653]) * self.R )
+        c_p_air = get_c_p_air(T)
+        return c_p_air
+
+    def set_rho(self):
+        """Sets density as rho (kg/m^3) and number density as n
+        (#/m^3)"""  
+        self.rho = self.get_rho(self.T, self.P)
+        self.n = self.get_n(self.rho)
+
     def set_Temp_dependents(self):
         """Sets viscosity (Pa*s) of general ideal gas and specific
         heat (kJ/kg*K) of air.  For other gases, use a different
         specific heat correlation."""  
-        self.mu = (5./16. * np.sqrt(np.pi*self.m*self.k_B*self.T) /
-        (np.pi*self.d**2)) # viscosity (Pa*s) of ideal gas from Bird,
-            # Stewart, Lightfoot Eq. 1.4-14.  This
-            # expression works ok for nonpolar gases,
-            # even ones with multiple molecules.  
-        # c_p (kJ/kg-K) of air
-        # Moran and Shapiro, Table A-21 constants for calculating
-        # specific heat of air 
-        self.get_c_p_air = np.poly1d([0.2763e-12,1.913e-9,3.294e-6,-1.337e-3
-        ,3.653]) * self.R 
+        self.mu = self.get_mu(self.T)
         self.c_p_air = self.get_c_p_air(self.T)
         # constant pressure specific heat of air (kJ/kg*K)  
         self.entropy = self.get_entropy(self.T)
@@ -103,14 +128,14 @@ class ideal_gas(flow):
         diffusivity (m^2/s), and thermal conductivity (kW/m-K)"""
         self.set_Temp_dependents()
         self.set_rho()
-        self.nu = self.mu/self.rho # kinematic viscosity (m^2/s)
+        self.nu = self.mu / self.rho # kinematic viscosity (m^2/s)
 
-    def set_alpha(self):
+    def set_thermal_props(self):
         """Sets temp and press dependents, then sets thermal
         diffusivity (m^2/s) if Pr is known, and then sets thermal 
         conductivity (kW/m*K).""" 
         self.set_TempPres_dependents()
-        self.alpha = self.nu/self.Pr # thermal diffusivity (m^2/s)
+        self.alpha = self.nu / self.Pr # thermal diffusivity (m^2/s)
         self.k_air = (self.alpha * self.rho * self.c_p_air) # thermal
             # conductivity(kW/m-K) of air
         
