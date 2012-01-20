@@ -54,7 +54,7 @@ class ideal_gas(flow):
         # Constant attributes for all gases
         self.k_B = UnitScalar(1.38e-26, units=energy.kJ /
         temperature.K) 
-        # Boltzmann's constant (J/K)
+        # Boltzmann's constant (kJ/K)
         self.Nhat = UnitScalar(6.022e26, units=substance.kmol**-1)
         # Avogadro's # (molecules/kmol)
         self.Rhat = self.k_B * self.Nhat 
@@ -98,14 +98,22 @@ class ideal_gas(flow):
         c_p_air = self.polyrep(T) * self.R 
         return c_p_air
 
-    @has_units(inputs="T:temperature:units=K",
+    @has_units(inputs="""T:temperature:units=K;
+    m:molecular mass:units=kg;k_B:Boltzmann:units=kJ/K;
+    d:molecular diameter:units=m""",
                outputs="mu:viscosity:units=Pa*sec")
+    def get_mu_dimless(self,T,m,k_B,d):
+        """Returns viscosity (Pa*s) of ideal gas without units
+        attached from Bird, Stewart, Lightfoot Eq. 1.4-14.  This
+        expression works ok for nonpolar gases, even ones with
+        multiple molecules.""" 
+        mu = (5. / 16. * (np.pi * m * k_B * T)**0.5 / (np.pi * d**2))   
+        return mu
+
     def get_mu(self,T):
-        """Returns viscosity (Pa*s) of ideal gas from Bird, Stewart,
-        Lightfoot Eq. 1.4-14.  This expression works ok for nonpolar
-        gases, even ones with multiple molecules.""" 
-        mu = (5. / 16. * (np.pi * self.m * self.k_B * T)**0.5 /
-        (np.pi*self.d**2))  
+        """Wrapper for get_mu_dimless so that @has_units decorator can
+        work properly."""
+        mu = self.get_mu_dimless(T, self.m, self.k_B, self.d)
         return mu
 
     def set_Temp_dependents(self):
