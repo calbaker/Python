@@ -107,7 +107,12 @@ class ideal_gas(flow):
         attached from Bird, Stewart, Lightfoot Eq. 1.4-14.  This
         expression works ok for nonpolar gases, even ones with
         multiple molecules.""" 
+        k_B = k_B * 1000. # correction for J/K
         mu = (5. / 16. * (np.pi * m * k_B * T)**0.5 / (np.pi * d**2))   
+        print "m =", m
+        print "k_B =", k_B
+        print "T =", T
+        print "d =", d 
         return mu
 
     def get_mu(self,T):
