@@ -52,7 +52,7 @@ class ideal_gas(flow):
             self.Pr = kwargs['Pr']
             
         # Constant attributes for all gases
-        self.k_B = UnitScalar(1.38e-23, units=energy.J /
+        self.k_B = UnitScalar(1.38e-26, units=energy.kJ /
         temperature.K) 
         # Boltzmann's constant (J/K)
         self.Nhat = UnitScalar(6.022e26, units=substance.kmol**-1)
@@ -98,15 +98,21 @@ class ideal_gas(flow):
         c_p_air = self.polyrep(T) * self.R 
         return c_p_air
 
+    @has_units(inputs="T:temperature:units=K",
+               outputs="mu:viscosity:units=Pa*sec")
+    def get_mu(self,T):
+        """Returns viscosity (Pa*s) of ideal gas from Bird, Stewart,
+        Lightfoot Eq. 1.4-14.  This expression works ok for nonpolar
+        gases, even ones with multiple molecules.""" 
+        mu = (5. / 16. * (np.pi * self.m * self.k_B * T)**0.5 /
+        (np.pi*self.d**2))  
+        return mu
+
     def set_Temp_dependents(self):
         """Sets viscosity (Pa*s) of general ideal gas and specific
         heat (kJ/kg*K) of air.  For other gases, use a different
         specific heat correlation."""  
-        self.mu = (5./16. * (np.pi*self.m*self.k_B*self.T)**0.5 /
-        (np.pi*self.d**2)) # viscosity (Pa*s) of ideal gas from Bird,
-            # Stewart, Lightfoot Eq. 1.4-14.  This
-            # expression works ok for nonpolar gases,
-            # even ones with multiple molecules.  
+        self.mu = self.get_mu(self.T)       
         self.c_p_air = self.get_c_p_air(self.T)
         # constant pressure specific heat of air (kJ/kg*K)  
         self.entropy = self.get_entropy(self.T)
@@ -119,13 +125,14 @@ class ideal_gas(flow):
         diffusivity (m^2/s), and thermal conductivity (kW/m-K)"""
         self.set_Temp_dependents()
         self.set_rho()
-        self.nu = self.mu/self.rho # kinematic viscosity (m^2/s)
+        self.nu = self.mu / self.rho # kinematic viscosity (m^2/s)
 
     def set_alpha(self):
         """Sets temp and press dependents, then sets thermal
         diffusivity (m^2/s) if Pr is known, and then sets thermal 
         conductivity (kW/m*K).""" 
         self.set_TempPres_dependents()
-        self.alpha = self.nu/self.Pr # thermal diffusivity (m^2/s)
+        self.alpha = self.nu / self.Pr # thermal diffusivity (m^2/s)
         self.k_air = (self.alpha * self.rho * self.c_p_air) # thermal
             # conductivity(kW/m-K) of air
+    
