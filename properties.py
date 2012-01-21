@@ -3,8 +3,6 @@ gases"""
 
 import numpy as np
 from scipy.integrate import quad
-from scimath.units import * 
-from scimath.units.api import *
 
 class flow(object):
     """Class for dealing with things that are common to all flows."""
@@ -29,20 +27,18 @@ class ideal_gas(flow):
             self.species = 'air'
 
         if self.species == 'air':
-            self.Mhat = UnitScalar(28.964, units=mass.kg /
-            substance.kmol) 
+            self.Mhat = 28.964 
             # molar mass of air from Bird, Stewart, Lightfoot Table
             # E.1 (kg/kmol)  
-            self.d = UnitScalar(3.617e-10, units=length.m) 
+            self.d = 3.617e-10
             # collision diameter of "air molecule" from Bird, Stewart,
             # Lightfoot Table E.1 (m)  
             self.Pr = 0.74 
             # Pr of air from Bird, Stewart, Lightfoot Table 9.3-1              
         
         elif self.species == 'propane' or 'C3H8':
-            self.Mhat = UnitScalar(44.10, units=mass.kg /
-            substance.kmol) 
-            self.d = UnitScalar(4.934e-10, units=length.m) 
+            self.Mhat = 44.10
+            self.d = 4.934e-10
 
         if 'Mhat' in kwargs:
             self.Mhat = kwargs['Mhat']
@@ -52,10 +48,9 @@ class ideal_gas(flow):
             self.Pr = kwargs['Pr']
             
         # Constant attributes for all gases
-        self.k_B = UnitScalar(1.38e-26, units=energy.kJ /
-        temperature.K) 
+        self.k_B = 1.38e-26
         # Boltzmann's constant (kJ/K)
-        self.Nhat = UnitScalar(6.022e26, units=substance.kmol**-1)
+        self.Nhat = 6.022e26
         # Avogadro's # (molecules/kmol)
         self.Rhat = self.k_B * self.Nhat 
         # Universal gas constant (kJ/kmol*K) 
@@ -63,19 +58,14 @@ class ideal_gas(flow):
         self.R = self.Rhat / self.Mhat # gas constant (kJ/kg*K)
         self.m = self.Mhat / self.Nhat # molecular mass (kg/molecule)
 
-    @has_units(inputs="T:a scalar:units=K",
-               outputs="entropy:a scalar:units=kJ/kg/K")
     def get_entropy(self,T):
         """Returns entropy with respect to 0 K at 1 bar."""
-        @has_units(inputs="T:a scalar:units=K")
         def get_integrand(T):
             integrand = self.get_c_p_air(T) / T
             return integrand
         entropy = (quad(get_integrand, 0.5, T)[0])
         return entropy
 
-    @has_units(inputs="T:a scalar:units=K",
-               outputs="enthalpy:a scalar:units=kJ/kg")
     def get_enthalpy(self,T):
         """Returns enthalpy."""
         enthalpy = (quad(self.get_c_p_air, 0., T)[0])
@@ -94,31 +84,16 @@ class ideal_gas(flow):
         returns n(#/m**3)"""  
         n = rho / self.m # number density (#/m^3)
 
-    @has_units(inputs="""T:temperature:units=K;
-    m:molecular mass:units=kg;k_B:Boltzmann:units=kJ/K;
-    d:molecular diameter:units=m""",
-               outputs="mu:viscosity:units=Pa*sec")
-    def get_mu_dimless(self,T,m,k_B,d):
-        """Returns viscosity (Pa*s) of ideal gas without units
-        attached from Bird, Stewart, Lightfoot Eq. 1.4-14.  This
-        expression works ok for nonpolar gases, even ones with
-        multiple molecules.""" 
-        k_B = k_B * 1000. # correction for J/K
+    def get_mu(self,T):
+        """Returns viscosity (Pa*s) of ideal gas attached from Bird,
+        Stewart, Lightfoot Eq. 1.4-14.  This expression works ok for
+        nonpolar gases, even ones with multiple molecules.""" 
         mu = (5. / 16. * (np.pi * m * k_B * T)**0.5 / (np.pi * d**2))   
         return mu
 
-    def get_mu(self,T):
-        """Wrapper for get_mu_dimless so that @has_units decorator can
-        work properly."""
-        mu = self.get_mu_dimless(T, self.m, self.k_B, self.d)
-        return mu
-
-    @has_units(inputs="T:temp:units=K",
-               outputs="c_p_air:specific heat:units=kJ/kg/K") 
     def get_c_p_air(self,T):
         """c_p (kJ/kg-K) of air calculated using Moran and Shapiro,
-               Table A-21 constants for polynomial for specific heat
-               of air"""  
+        Table A-21 constants for polynomial for specific heat of air"""  
         self.polyrep = np.poly1d([0.2763e-12, 1.913e-9, 3.294e-6,
         -1.337e-3, 3.653]) 
         c_p_air = self.polyrep(T) * self.R 
