@@ -88,7 +88,8 @@ class ideal_gas(flow):
         """Returns viscosity (Pa*s) of ideal gas attached from Bird,
         Stewart, Lightfoot Eq. 1.4-14.  This expression works ok for
         nonpolar gases, even ones with multiple molecules.""" 
-        mu = (5. / 16. * (np.pi * m * k_B * T)**0.5 / (np.pi * d**2))   
+        mu = (5. / 16. * (np.pi * self.m * self.k_B * self.T)**0.5 /
+        (np.pi * self.d**2))   
         return mu
 
     def get_c_p_air(self,T):
