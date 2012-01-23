@@ -6,14 +6,7 @@ from scipy.integrate import quad
 
 import constants as const 
 
-class flow(object):
-    """Class for dealing with things that are common to all flows."""
-    def set_Re(self):
-        """Function for calculating the Reynolds number for a hydraulic
-        diameter""" 
-        self.Re_D = self.velocity * self.D / self.nu
-
-class ideal_gas(flow):
+class ideal_gas(object):
     """Class for modeling ideal gases.  Inherits properties of
     flow.""" 
 
