@@ -4,6 +4,8 @@ gases"""
 import numpy as np
 from scipy.integrate import quad
 
+import constants as const 
+
 class flow(object):
     """Class for dealing with things that are common to all flows."""
     def set_Re(self):
@@ -13,14 +15,18 @@ class flow(object):
 
 class ideal_gas(flow):
     """Class for modeling ideal gases.  Inherits properties of
-    flow""" 
+    flow.""" 
 
     def __init__(self,**kwargs):
-        """ Sets a bunch of constants common to all ideal gases, and
-        some which are specific to air."""
+        """Sets the following variables:
+        species: name of gas species
+        Mhat: molecular weight (kg/kmol) of gas species
+        d: collision diameter (m)
+        Pr: Prandtl number
 
-        # Unless otherwise noted, all gas properties are coming from
-        # Bird, Stewart, Lightfoot Transport Phenomena Table E.1
+        Unless otherwise noted, all gas properties are coming from
+        Bird, Stewart, Lightfoot Transport Phenomena Table E.1"""
+
         if 'species' in kwargs:
             self.species = kwargs['species']
         else:
@@ -28,13 +34,8 @@ class ideal_gas(flow):
 
         if self.species == 'air':
             self.Mhat = 28.964 
-            # molar mass of air from Bird, Stewart, Lightfoot Table
-            # E.1 (kg/kmol)  
             self.d = 3.617e-10
-            # collision diameter of "air molecule" from Bird, Stewart,
-            # Lightfoot Table E.1 (m)  
             self.Pr = 0.74 
-            # Pr of air from Bird, Stewart, Lightfoot Table 9.3-1              
         
         elif self.species == 'propane' or 'C3H8':
             self.Mhat = 44.10
@@ -47,19 +48,21 @@ class ideal_gas(flow):
         if 'Pr' in kwargs:
             self.Pr = kwargs['Pr']
             
-        # Constant attributes for all gases
-        self.k_B = 1.38e-26
-        # Boltzmann's constant (kJ/K)
-        self.Nhat = 6.022e26
-        # Avogadro's # (molecules/kmol)
-        self.Rhat = self.k_B * self.Nhat 
-        # Universal gas constant (kJ/kmol*K) 
         # Calculated attributes
-        self.R = self.Rhat / self.Mhat # gas constant (kJ/kg*K)
-        self.m = self.Mhat / self.Nhat # molecular mass (kg/molecule)
+        self.R = const.Rhat / self.Mhat  
+        # gas constant (kJ/kg*K)
+        self.m = self.Mhat / const.Nhat 
+        # molecular mass (kg/molecule)
+
+    def set_standard_air(self):
+        """Sets properties of air for T = 300 K and P = 101 kPa.""" 
+        self.T = 300.
+        self.P = 101.
+        self.set_TempPres_dependents()
 
     def get_entropy(self,T):
-        """Returns entropy with respect to 0 K at 1 bar."""
+        """Returns entropy with respect to 0 K at 1 bar.
+        inputs:"""
         def get_integrand(T):
             integrand = self.get_c_p_air(T) / T
             return integrand
@@ -88,7 +91,7 @@ class ideal_gas(flow):
         """Returns viscosity (Pa*s) of ideal gas attached from Bird,
         Stewart, Lightfoot Eq. 1.4-14.  This expression works ok for
         nonpolar gases, even ones with multiple molecules.""" 
-        mu = (5. / 16. * (np.pi * self.m * self.k_B * self.T)**0.5 /
+        mu = (5. / 16. * (np.pi * self.m * const.k_B * self.T)**0.5 /
         (np.pi * self.d**2))   
         return mu
 
