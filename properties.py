@@ -110,8 +110,9 @@ class ideal_gas(object):
         self.mu = self.get_mu(self.T)       
         self.c_p_air = self.get_c_p_air(self.T)
         # constant pressure specific heat of air (kJ/kg*K)  
-        self.entropy = self.get_entropy(self.T)
-        self.enthalpy = self.get_enthalpy(self.T)
+        if np.isscalar(self.T) == True:
+            self.entropy = self.get_entropy(self.T)
+            self.enthalpy = self.get_enthalpy(self.T)
 
     def set_TempPres_dependents(self):
         """Sets temp dependent properties and then sets properties
