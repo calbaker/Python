@@ -79,6 +79,7 @@ class ideal_gas(object):
         argument: rho(kg/m**3)
         returns n(#/m**3)"""  
         n = rho / self.m # number density (#/m^3)
+        return n
 
     def get_mu(self,T):
         """Returns viscosity (Pa*s) of ideal gas attached from Bird,
