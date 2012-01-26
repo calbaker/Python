@@ -55,7 +55,15 @@ class ideal_gas(object):
 
     def get_entropy(self,T):
         """Returns entropy with respect to 0 K at 1 bar.
-        inputs:"""
+        
+        Arguments
+        ------------
+        T: temperature(K)
+        
+        Returns
+        ------------
+        entropy (kJ / kg / K)"""
+
         def get_integrand(T):
             integrand = self.get_c_p_air(T) / T
             return integrand
@@ -63,7 +71,16 @@ class ideal_gas(object):
         return entropy
 
     def get_enthalpy(self,T):
-        """Returns enthalpy."""
+        """Returns enthalpy based on temperature.
+        
+        Arugments
+        ----------
+        T : temperature (K)
+        
+        Returns 
+        ----------
+        enthalpy (kJ/kg)"""
+
         enthalpy = (quad(self.get_c_p_air, 0., T)[0])
         return enthalpy
 
