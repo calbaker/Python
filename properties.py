@@ -130,6 +130,9 @@ class ideal_gas(object):
         if np.isscalar(self.T) == True:
             self.entropy = self.get_entropy(self.T)
             self.enthalpy = self.get_enthalpy(self.T)
+        elif self.T.size == 1:
+            self.entropy = self.get_entropy(self.T)
+            self.enthalpy = self.get_enthalpy(self.T)
 
     def set_TempPres_dependents(self):
         """Sets temp dependent properties and then sets properties
