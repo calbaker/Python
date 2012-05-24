@@ -1,5 +1,6 @@
 """Contains classes for characterizing flows and determining
-properties of ideal gases"""
+properties of ideal gases.  It is a good idea to put this script in a
+directory that is in the python path."""
 
 import numpy as np
 from scipy.integrate import quad
